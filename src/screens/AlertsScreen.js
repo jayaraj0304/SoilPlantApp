@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { Alert } from 'react-native';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS, SHADOWS } from '../constants/theme';
-import { subscribeAlerts } from '../services/api';
+import { subscribeAlerts, clearAlerts } from '../services/api';
 import { formatTimestamp } from '../utils/helpers';
 
 const AlertsScreen = () => {
@@ -49,14 +50,48 @@ const AlertsScreen = () => {
     setTimeout(() => setRefreshing(false), 800);
   };
 
+  const handleClearAll = () => {
+    if (alerts.length === 0) return;
+
+    Alert.alert(
+      'Clear All Alerts',
+      'Are you sure you want to remove all current alerts? This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Clear All', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearAlerts();
+              // The database listener will automatically update the UI
+            } catch (error) {
+              Alert.alert('Error', 'Failed to clear alerts. Please try again.');
+            }
+          }
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
       <LinearGradient colors={['#1B5E20', '#2E7D32']} style={styles.header}>
-        <Text style={styles.headerTitle}>🔔 Alerts</Text>
-        <Text style={styles.headerSubtitle}>Real-time sensor notifications</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.headerTitle}>🔔 Alerts</Text>
+            <Text style={styles.headerSubtitle}>Real-time sensor notifications</Text>
+          </View>
+          {alerts.length > 0 && (
+            <TouchableOpacity style={styles.clearButton} onPress={handleClearAll}>
+              <Ionicons name="trash-bin-outline" size={20} color="#FFF" />
+              <Text style={styles.clearText}>Clear</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* Summary Badges */}
         <View style={styles.badgeRow}>
@@ -162,6 +197,9 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
   },
   headerTitle: { fontSize: 24, fontWeight: '800', color: '#FFF' },
+  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  clearButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, gap: 6 },
+  clearText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
   headerSubtitle: { fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
   badgeRow: {
     flexDirection: 'row',

@@ -16,9 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS, SHADOWS, CROPS, CROP_THRESHOLDS } from '../constants/theme';
-import { setSelectedCrop, subscribeSelectedCrop } from '../services/api';
-import { ref, remove } from 'firebase/database';
-import { database } from '../services/firebaseConfig';
+import { setSelectedCrop, subscribeSelectedCrop, clearAlerts, clearSensorHistory } from '../services/api';
 
 const SettingsScreen = ({ onLogout, user }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -91,7 +89,7 @@ const SettingsScreen = ({ onLogout, user }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await remove(ref(database, 'alerts'));
+              await clearAlerts();
               Alert.alert('✅ Done', 'All alerts have been cleared.');
             } catch (e) {
               Alert.alert('Error', 'Failed to clear alerts.');
@@ -113,7 +111,7 @@ const SettingsScreen = ({ onLogout, user }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await remove(ref(database, 'sensorHistory'));
+              await clearSensorHistory();
               Alert.alert('✅ Done', 'Sensor history cleared.');
             } catch (e) {
               Alert.alert('Error', 'Failed to clear history.');

@@ -192,3 +192,29 @@ export const subscribeFarmHealth = (callback) => {
 
   return () => off(healthRef);
 };
+
+/**
+ * Clear all alerts from the database
+ */
+export const clearAlerts = async () => {
+  try {
+    const alertsRef = ref(database, 'alerts');
+    await set(alertsRef, null);
+  } catch (error) {
+    console.error('Failed to clear alerts:', error);
+    throw error;
+  }
+};
+
+/**
+ * Clear all sensor history from the database
+ */
+export const clearSensorHistory = async () => {
+  try {
+    const historyRef = ref(database, 'sensorHistory');
+    await set(historyRef, null);
+  } catch (error) {
+    console.error('Failed to clear sensor history:', error);
+    throw error;
+  }
+};
